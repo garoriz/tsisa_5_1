@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        final int DAYS_IN_APRIL = 30;
         List<String> orders = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader("D:\\IntelliJ IDEA projects\\SimpleProject\\src\\main\\java\\org\\example\\order.csv"))) {
             String order;
@@ -34,6 +35,7 @@ public class Main {
                 countOfOrders++;
             }
         }
+        countsOfOrdersInHour.add(countOfOrders);
 
         double sum = 0;
         for (int i = 1; i <= countsOfOrdersInHour.size(); i++) {
@@ -43,13 +45,12 @@ public class Main {
                 sum = 0;
             }
         }
-        averageCountsOfOrders.add(sum / 72);
 
         int averageCountsOfOrdersIndex = 0;
         sum = 0;
         for (int i = 1; i <= countsOfOrdersInHour.size(); i++) {
-            sum += Math.sqrt(Math.abs(countsOfOrdersInHour.get(i - 1) -
-                    averageCountsOfOrders.get(averageCountsOfOrdersIndex)));
+            sum += Math.pow(countsOfOrdersInHour.get(i - 1) -
+                    averageCountsOfOrders.get(averageCountsOfOrdersIndex), 2);
 
             if (i % 72 == 0) {
                 sum /= 72;
@@ -58,13 +59,39 @@ public class Main {
                 sum = 0;
             }
         }
-        sum /= 72;
-        dispersionsOfOrders.add(sum);
 
-        for (Double d:
-             dispersionsOfOrders) {
-            System.out.println(d);
+        countOfOrders = 0;
+        key = orders.get(0).substring(0, 10);
+        List<Integer> countsOfOrdersInDay = new ArrayList<>(DAYS_IN_APRIL);
+        for (int i = 0; i < orders.size(); i++) {
+            if (!orders.get(i).substring(0, 10).equals(key)) {
+                countsOfOrdersInDay.add(countOfOrders);
+                key = orders.get(i).substring(0, 10);
+
+                countOfOrders = 1;
+            } else {
+                countOfOrders++;
+            }
         }
+        countsOfOrdersInDay.add(countOfOrders);
+
+        double averageCountOfOrdersInDay = 0.0;
+        double dispersionOfOrdersInDay = 0.0;
+
+        for (Integer countOfOrderInDay :
+                countsOfOrdersInDay) {
+            averageCountOfOrdersInDay += countOfOrderInDay;
+        }
+
+        averageCountOfOrdersInDay /= 30;
+
+        for (Integer countOfOrderInDay :
+                countsOfOrdersInDay) {
+            dispersionOfOrdersInDay += Math.pow(countOfOrderInDay -
+                    averageCountOfOrdersInDay, 2);
+        }
+        dispersionOfOrdersInDay /= DAYS_IN_APRIL;
+        System.out.println(dispersionOfOrdersInDay);
     }
 
     private static void addToAverageCountsAndDispersionsOfOrders(
