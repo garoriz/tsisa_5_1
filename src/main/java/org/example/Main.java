@@ -13,7 +13,7 @@ public class Main {
         try (BufferedReader br = new BufferedReader(new FileReader("D:\\IntelliJ IDEA projects\\SimpleProject\\src\\main\\java\\org\\example\\order.csv"))) {
             String order;
             while ((order = br.readLine()) != null) {
-                addApril2022Orders(orders, order);
+                addOrdersByMonth(orders, order, "2022-04");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -91,7 +91,129 @@ public class Main {
                     averageCountOfOrdersInDay, 2);
         }
         dispersionOfOrdersInDay /= DAYS_IN_APRIL;
-        System.out.println(dispersionOfOrdersInDay);
+
+        List<String> ordersIn3Months = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("D:\\IntelliJ IDEA projects\\SimpleProject\\src\\main\\java\\org\\example\\order.csv"))) {
+            String order;
+            while ((order = br.readLine()) != null) {
+                addOrdersByMonth(ordersIn3Months, order, "2022-03");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        ordersIn3Months.addAll(orders);
+
+        try (BufferedReader br = new BufferedReader(new FileReader("D:\\IntelliJ IDEA projects\\SimpleProject\\src\\main\\java\\org\\example\\order.csv"))) {
+            String order;
+            while ((order = br.readLine()) != null) {
+                addOrdersByMonth(ordersIn3Months, order, "2022-05");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        key = ordersIn3Months.get(0).substring(0, 10);
+        int index = 1;
+        while (!key.equals("2022-03-07")) {
+            key = ordersIn3Months.get(index).substring(0, 10);
+            index++;
+        }
+
+        List<Integer> countsOfOrdersInMondays = new ArrayList<>();
+        countOfOrders = 1;
+        int indexOfWeek = 1;
+
+        for (int i = index + 1; i < ordersIn3Months.size(); i++) {
+            if (!ordersIn3Months.get(i).substring(0, 10).equals(key)) {
+                addOrdersIfMonday(countsOfOrdersInMondays, indexOfWeek, countOfOrders);
+                key = ordersIn3Months.get(i).substring(0, 10);
+
+                countOfOrders = 1;
+                indexOfWeek = getIndexOfWeek(indexOfWeek);
+            } else {
+                countOfOrders++;
+            }
+        }
+        addOrdersIfMonday(countsOfOrdersInMondays, indexOfWeek, countOfOrders);
+
+        double averageCountOfOrdersInMondays = 0.0;
+        double dispersionOfOrdersInMondays = 0.0;
+
+        for (Integer countOfOrderInMondays :
+                countsOfOrdersInMondays) {
+            averageCountOfOrdersInMondays += countOfOrderInMondays;
+        }
+
+        averageCountOfOrdersInMondays /= countsOfOrdersInMondays.size();
+
+        for (Integer countOfOrderInMondays :
+                countsOfOrdersInMondays) {
+            dispersionOfOrdersInMondays += Math.pow(countOfOrderInMondays -
+                    averageCountOfOrdersInMondays, 2);
+        }
+        dispersionOfOrdersInMondays /= countsOfOrdersInMondays.size();
+
+        key = ordersIn3Months.get(0).substring(0, 10);
+        index = 1;
+        while (!key.equals("2022-03-06")) {
+            key = ordersIn3Months.get(index).substring(0, 10);
+            index++;
+        }
+
+        List<Integer> countsOfOrdersInSundays = new ArrayList<>();
+        countOfOrders = 1;
+        indexOfWeek = 7;
+
+        for (int i = index + 1; i < ordersIn3Months.size(); i++) {
+            if (!ordersIn3Months.get(i).substring(0, 10).equals(key)) {
+                addOrdersIfSunday(countsOfOrdersInSundays, indexOfWeek, countOfOrders);
+                key = ordersIn3Months.get(i).substring(0, 10);
+
+                countOfOrders = 1;
+                indexOfWeek = getIndexOfWeek(indexOfWeek);
+            } else {
+                countOfOrders++;
+            }
+        }
+        addOrdersIfSunday(countsOfOrdersInSundays, indexOfWeek, countOfOrders);
+
+        double averageCountOfOrdersInSundays = 0.0;
+        double dispersionOfOrdersInSundays = 0.0;
+
+        for (Integer countOfOrderInSundays :
+                countsOfOrdersInSundays) {
+            averageCountOfOrdersInSundays += countOfOrderInSundays;
+        }
+
+        averageCountOfOrdersInSundays /= countsOfOrdersInSundays.size();
+
+        for (Integer countOfOrderInSundays :
+                countsOfOrdersInSundays) {
+            dispersionOfOrdersInSundays += Math.pow(countOfOrderInSundays -
+                    averageCountOfOrdersInSundays, 2);
+        }
+        dispersionOfOrdersInSundays /= countsOfOrdersInSundays.size();
+    }
+
+    private static void addOrdersIfSunday(List<Integer> countsOfOrdersInSundays, int indexOfWeek, int countOfOrders) {
+        if (indexOfWeek == 7) {
+            countsOfOrdersInSundays.add(countOfOrders);
+        }
+    }
+
+    private static void addOrdersIfMonday(List<Integer> countsOfOrdersInMondays, int indexOfWeek, int countOfOrders) {
+        if (indexOfWeek == 1) {
+            countsOfOrdersInMondays.add(countOfOrders);
+        }
+    }
+
+    private static int getIndexOfWeek(int indexOfWeek) {
+        if (indexOfWeek == 7) {
+            return 1;
+        }
+        indexOfWeek++;
+        return indexOfWeek;
     }
 
     private static void addToAverageCountsAndDispersionsOfOrders(
@@ -105,8 +227,8 @@ public class Main {
         }
     }
 
-    private static void addApril2022Orders(List<String> records, String line) {
-        if (line.contains("2022-04")) {
+    private static void addOrdersByMonth(List<String> records, String line, String month) {
+        if (line.contains(month)) {
             records.add(line);
         }
     }
