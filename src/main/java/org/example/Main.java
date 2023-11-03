@@ -194,6 +194,47 @@ public class Main {
                     averageCountOfOrdersInSundays, 2);
         }
         dispersionOfOrdersInSundays /= countsOfOrdersInSundays.size();
+
+        List<Integer> countsOfOrdersInWeeks = new ArrayList<>();
+        countOfOrders = 1;
+        indexOfWeek = 2;
+        key = ordersIn3Months.get(0).substring(0, 10);
+
+        for (int i = 1; i < ordersIn3Months.size(); i++) {
+            if (!ordersIn3Months.get(i).substring(0, 10).equals(key)) {
+                key = ordersIn3Months.get(i).substring(0, 10);
+                countOfOrders = addOrdersByWeekAndGetCountOfOrders(countsOfOrdersInWeeks, countOfOrders, indexOfWeek);
+                indexOfWeek = getIndexOfWeek(indexOfWeek);
+            } else {
+                countOfOrders++;
+            }
+        }
+        countsOfOrdersInWeeks.add(countOfOrders);
+
+        double averageCountOfOrdersInWeeks = 0.0;
+        double dispersionOfOrdersInWeeks = 0.0;
+
+        for (Integer countOfOrderInWeeks :
+                countsOfOrdersInWeeks) {
+            averageCountOfOrdersInWeeks += countOfOrderInWeeks;
+        }
+
+        averageCountOfOrdersInWeeks /= countsOfOrdersInWeeks.size();
+
+        for (Integer countOfOrderInWeeks :
+                countsOfOrdersInWeeks) {
+            dispersionOfOrdersInWeeks += Math.pow(countOfOrderInWeeks -
+                    averageCountOfOrdersInWeeks, 2);
+        }
+        dispersionOfOrdersInWeeks /= countsOfOrdersInWeeks.size();
+    }
+
+    private static int addOrdersByWeekAndGetCountOfOrders(List<Integer> countsOfOrdersInWeeks, int countOfOrders, int indexOfWeek) {
+        if (indexOfWeek == 7) {
+            countsOfOrdersInWeeks.add(countOfOrders);
+            return 1;
+        }
+        return countOfOrders;
     }
 
     private static void addOrdersIfSunday(List<Integer> countsOfOrdersInSundays, int indexOfWeek, int countOfOrders) {
