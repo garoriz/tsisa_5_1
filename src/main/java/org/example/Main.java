@@ -84,6 +84,7 @@ public class Main {
         }
 
         averageCountOfOrdersInDay /= 30;
+        averageCountsOfOrders.add(averageCountOfOrdersInDay);
 
         for (Integer countOfOrderInDay :
                 countsOfOrdersInDay) {
@@ -91,6 +92,7 @@ public class Main {
                     averageCountOfOrdersInDay, 2);
         }
         dispersionOfOrdersInDay /= DAYS_IN_APRIL;
+        dispersionsOfOrders.add(dispersionOfOrdersInDay);
 
         List<String> ordersIn3Months = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader("D:\\IntelliJ IDEA projects\\SimpleProject\\src\\main\\java\\org\\example\\order.csv"))) {
@@ -146,6 +148,7 @@ public class Main {
         }
 
         averageCountOfOrdersInMondays /= countsOfOrdersInMondays.size();
+        averageCountsOfOrders.add(averageCountOfOrdersInMondays);
 
         for (Integer countOfOrderInMondays :
                 countsOfOrdersInMondays) {
@@ -153,6 +156,7 @@ public class Main {
                     averageCountOfOrdersInMondays, 2);
         }
         dispersionOfOrdersInMondays /= countsOfOrdersInMondays.size();
+        dispersionsOfOrders.add(dispersionOfOrdersInMondays);
 
         key = ordersIn3Months.get(0).substring(0, 10);
         index = 1;
@@ -187,6 +191,7 @@ public class Main {
         }
 
         averageCountOfOrdersInSundays /= countsOfOrdersInSundays.size();
+        averageCountsOfOrders.add(averageCountOfOrdersInSundays);
 
         for (Integer countOfOrderInSundays :
                 countsOfOrdersInSundays) {
@@ -194,6 +199,7 @@ public class Main {
                     averageCountOfOrdersInSundays, 2);
         }
         dispersionOfOrdersInSundays /= countsOfOrdersInSundays.size();
+        dispersionsOfOrders.add(dispersionOfOrdersInSundays);
 
         List<Integer> countsOfOrdersInWeeks = new ArrayList<>();
         countOfOrders = 1;
@@ -220,6 +226,7 @@ public class Main {
         }
 
         averageCountOfOrdersInWeeks /= countsOfOrdersInWeeks.size();
+        averageCountsOfOrders.add(averageCountOfOrdersInWeeks);
 
         for (Integer countOfOrderInWeeks :
                 countsOfOrdersInWeeks) {
@@ -227,6 +234,18 @@ public class Main {
                     averageCountOfOrdersInWeeks, 2);
         }
         dispersionOfOrdersInWeeks /= countsOfOrdersInWeeks.size();
+        dispersionsOfOrders.add(dispersionOfOrdersInWeeks);
+
+        double minDispersion = dispersionsOfOrders.get(0);
+        int minDispersionIndex = 0;
+        for (int i = 1; i < dispersionsOfOrders.size(); i++) {
+            if (minDispersion > dispersionsOfOrders.get(i)) {
+                minDispersion = dispersionsOfOrders.get(i);
+                minDispersionIndex = i;
+            }
+        }
+        double intensity = averageCountsOfOrders.get(minDispersionIndex);
+        int t = 1;
     }
 
     private static int addOrdersByWeekAndGetCountOfOrders(List<Integer> countsOfOrdersInWeeks, int countOfOrders, int indexOfWeek) {
