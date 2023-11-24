@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public class Main {
-    CurrencyData[] eurrub;
+    CurrencyData[] cadrub;
     CurrencyData[] jpyrub;
     CurrencyData[] usdrub;
     CurrencyData[] uzsrub;
@@ -26,7 +26,7 @@ public class Main {
     Sample[] sampling;
 
     // пропорции валют в стратегиях
-    double[][] strategy = new double[][]{{0.1,0.15,0.15,0.6}, {0.3,0.3,0.3,0.1},{0.6,0.1,0.1,0.2},{0.35,0.35,0.15,0.15}};
+    double[][] strategy = new double[][]{{0.1, 0.15, 0.15, 0.6}, {0.3, 0.3, 0.3, 0.1}, {0.6, 0.1, 0.1, 0.2}, {0.35, 0.35, 0.15, 0.15}};
 
     // размер всей исследуемой выборки
     int sz;
@@ -48,11 +48,11 @@ public class Main {
     public void sampling() {
         // будем рассматривать выборки по portion_size дней из массива котировок
         // затем по ним фиксировать частоту появления событий при разных стратегиях
-        sampling = new Sample[sz/portion_size];
+        sampling = new Sample[sz / portion_size];
 
-        for (int i = 0; i < sz/portion_size; i++) { // цикл по подвыборкам, их количество = размер массива котировок / portion_size
+        for (int i = 0; i < sz / portion_size; i++) { // цикл по подвыборкам, их количество = размер массива котировок / portion_size
 
-            System.out.println("Выборка #" + i + " дата с: " + new SimpleDateFormat("dd.MM.yyyy").format(eurrub[i * portion_size].date));
+            System.out.println("Выборка #" + i + " дата с: " + new SimpleDateFormat("dd.MM.yyyy").format(cadrub[i * portion_size].date));
 
             int l = i * portion_size; // индекс первого элемента подвыборки в общем массиве котировок
 
@@ -65,10 +65,10 @@ public class Main {
             // в i-ый день формируем корзину, в (i + portion_size)-ый день конвертируем в рубли
             for (int k = 0; k < 4; k++) { // цикл по стратегиям
                 sampling[i].profit[k] = budget * (
-                        strategy[k][0]*((1/eurrub[l].open)*eurrub[l + portion_size - 1].close - 1) +
-                                strategy[k][1]*((1/jpyrub[l].open)*jpyrub[l + portion_size - 1].close - 1) +
-                                strategy[k][2]*((1/usdrub[l].open)*usdrub[l + portion_size - 1].close - 1) +
-                                strategy[k][3]*((1/uzsrub[l].open)*uzsrub[l + portion_size - 1].close - 1)
+                        strategy[k][0] * ((1 / cadrub[l].open) * cadrub[l + portion_size - 1].close - 1) +
+                                strategy[k][1] * ((1 / jpyrub[l].open) * jpyrub[l + portion_size - 1].close - 1) +
+                                strategy[k][2] * ((1 / usdrub[l].open) * usdrub[l + portion_size - 1].close - 1) +
+                                strategy[k][3] * ((1 / uzsrub[l].open) * uzsrub[l + portion_size - 1].close - 1)
                 );
             }
 
@@ -81,21 +81,21 @@ public class Main {
                 // среднее
                 double x_ = 0;
                 for (int j = l; j < l + portion_size; j++) {
-                    x_ = x_ + strategy[k][0] * eurrub[j].close + strategy[k][1] * jpyrub[j].close +
+                    x_ = x_ + strategy[k][0] * cadrub[j].close + strategy[k][1] * jpyrub[j].close +
                             strategy[k][2] * usdrub[j].close + strategy[k][3] * uzsrub[j].close;
                 }
-                x_ = x_/portion_size;
+                x_ = x_ / portion_size;
 
                 // дисперсия
                 double d = 0;
                 for (int j = l; j < l + portion_size; j++) {
-                    d = d + (strategy[k][0] * eurrub[j].close + strategy[k][1] * jpyrub[j].close +
+                    d = d + (strategy[k][0] * cadrub[j].close + strategy[k][1] * jpyrub[j].close +
                             strategy[k][2] * usdrub[j].close + strategy[k][3] * uzsrub[j].close - x_) *
-                            (strategy[k][0] * eurrub[j].close + strategy[k][1] * jpyrub[j].close +
+                            (strategy[k][0] * cadrub[j].close + strategy[k][1] * jpyrub[j].close +
                                     strategy[k][2] * usdrub[j].close + strategy[k][3] * uzsrub[j].close - x_);
                 }
                 // зафиксируем дисперсию в структуре, хранящей разные параметры подвыборки
-                sampling[i].d[k] = d/portion_size;
+                sampling[i].d[k] = d / portion_size;
 
                 // Проверим, не является ли стратегия наиболее рискованной
                 if (sampling[i].d[k] > max_dispersion) {
@@ -119,7 +119,7 @@ public class Main {
 
             // распечатаем параметры подвыборки
             for (int k = 0; k < 4; k++) { // цикл по стратегиям
-                System.out.println("s" + (k+1) + ": profit=" + sampling[i].profit[k] + " , dispersion=" + sampling[i].d[k] + ", environment_state=" + sampling[i].environment_state[k]);
+                System.out.println("s" + (k + 1) + ": profit=" + sampling[i].profit[k] + " , dispersion=" + sampling[i].d[k] + ", environment_state=" + sampling[i].environment_state[k]);
             }
         }
     }
@@ -141,23 +141,50 @@ public class Main {
         System.out.println("----------------------------------------------------------------------------");
 
         for (int k = 0; k < 4; k++) {// перебираем стратегии
-            double cp0=0; double cp1=0; double cp2=0; double cp3=0; // счетчики выпавших состояний природы при стратегии k
-            double ss0=0; double ss1=0; double ss2=0; double ss3=0; // сумма выигрыша стратегии k при определенном состоянии природы
+            double cp0 = 0;
+            double cp1 = 0;
+            double cp2 = 0;
+            double cp3 = 0; // счетчики выпавших состояний природы при стратегии k
+            double ss0 = 0;
+            double ss1 = 0;
+            double ss2 = 0;
+            double ss3 = 0; // сумма выигрыша стратегии k при определенном состоянии природы
 
             for (int i = 0; i < sz / portion_size; i++) { // перебираем выборки и смотрим соответствие стратегии и состояния
-                if (sampling[i].environment_state[k] == 0) { cp0++; ss0 += sampling[i].profit[k];}
-                else if (sampling[i].environment_state[k] == 1) { cp1++; ss1 += sampling[i].profit[k];}
-                else if (sampling[i].environment_state[k] == 2) { cp2++; ss2 += sampling[i].profit[k];}
-                else if (sampling[i].environment_state[k] == 3) { cp3++; ss3 += sampling[i].profit[k];}
+                if (sampling[i].environment_state[k] == 0) {
+                    cp0++;
+                    ss0 += sampling[i].profit[k];
+                } else if (sampling[i].environment_state[k] == 1) {
+                    cp1++;
+                    ss1 += sampling[i].profit[k];
+                } else if (sampling[i].environment_state[k] == 2) {
+                    cp2++;
+                    ss2 += sampling[i].profit[k];
+                } else if (sampling[i].environment_state[k] == 3) {
+                    cp3++;
+                    ss3 += sampling[i].profit[k];
+                }
             }
 
-            if (cp0 > 0) {ss0 = ss0/cp0; cp0 = cp0/ (sz / portion_size);}
-            if (cp1 > 0) {ss1 = ss1/cp1; cp1 = cp1/ (sz / portion_size);}
-            if (cp2 > 0) {ss2 = ss2/cp2; cp2 = cp2/ (sz / portion_size);}
-            if (cp3 > 0) {ss3 = ss3/cp3; cp3 = cp3/ (sz / portion_size);}
+            if (cp0 > 0) {
+                ss0 = ss0 / cp0;
+                cp0 = cp0 / (sz / portion_size);
+            }
+            if (cp1 > 0) {
+                ss1 = ss1 / cp1;
+                cp1 = cp1 / (sz / portion_size);
+            }
+            if (cp2 > 0) {
+                ss2 = ss2 / cp2;
+                cp2 = cp2 / (sz / portion_size);
+            }
+            if (cp3 > 0) {
+                ss3 = ss3 / cp3;
+                cp3 = cp3 / (sz / portion_size);
+            }
 
             // Выводим строку матрицы
-            System.out.println("s"+ k +"|" + ss0 + "; " + cp0 + "|" + ss1 + "; " + cp1 + "|" + ss2 + "; " + cp2 + "|" + ss3 + "; " + cp3 + "|");
+            System.out.println("s" + k + "|" + ss0 + "; " + cp0 + "|" + ss1 + "; " + cp1 + "|" + ss2 + "; " + cp2 + "|" + ss3 + "; " + cp3 + "|");
         }
     }
 
@@ -169,29 +196,29 @@ public class Main {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 
         try {
-            List<String> pairEUR_RUB = Files.readAllLines(Paths.get("pairs/EURRUB_220801_221030.csv"));
-            List<String> pairJPY_RUB = Files.readAllLines(Paths.get("pairs/JPYRUB_220801_221030.csv"));
-            List<String> pairUSD_RUB = Files.readAllLines(Paths.get("pairs/USDRUB_220801_221030.csv"));
-            List<String> pairUZS_RUB = Files.readAllLines(Paths.get("pairs/UZSRUB_220801_221030.csv"));
+            List<String> pairCAD_RUB = Files.readAllLines(Paths.get("D:\\IntelliJ IDEA projects\\SimpleProject\\CADRUB_230714_231114.csv"));
+            List<String> pairJPY_RUB = Files.readAllLines(Paths.get("D:\\IntelliJ IDEA projects\\SimpleProject\\JPYRUB_230714_231114.csv"));
+            List<String> pairUSD_RUB = Files.readAllLines(Paths.get("D:\\IntelliJ IDEA projects\\SimpleProject\\USDRUB_14072023_14112023.csv"));
+            List<String> pairUZS_RUB = Files.readAllLines(Paths.get("D:\\IntelliJ IDEA projects\\SimpleProject\\UZSRUB_230714_231114.csv"));
 
             // Первая строка - заголовок
-            sz = min(pairEUR_RUB.size(), pairJPY_RUB.size(), pairUSD_RUB.size(), pairUZS_RUB.size()) - 1;
+            sz = min(pairCAD_RUB.size(), pairJPY_RUB.size(), pairUSD_RUB.size(), pairUZS_RUB.size()) - 1;
 
-            eurrub = new CurrencyData[sz];
+            cadrub = new CurrencyData[sz];
             jpyrub = new CurrencyData[sz];
             usdrub = new CurrencyData[sz];
             uzsrub = new CurrencyData[sz];
 
             for (int i = 1; i < sz; i++) {
-                String[] p_eurrub = pairEUR_RUB.get(i).replace(",", ".").split(";");
+                String[] p_cadrub = pairCAD_RUB.get(i).replace(",", ".").split(";");
                 String[] p_jpyrub = pairJPY_RUB.get(i).replace(",", ".").split(";");
                 String[] p_usdrub = pairUSD_RUB.get(i).replace(",", ".").split(";");
                 String[] p_uzsrub = pairUZS_RUB.get(i).replace(",", ".").split(";");
 
-                eurrub[i-1] = new CurrencyData(sdf.parse(p_eurrub[2]), Double.parseDouble(p_eurrub[4]), Double.parseDouble(p_eurrub[7]));
-                jpyrub[i-1] = new CurrencyData(sdf.parse(p_jpyrub[2]), Double.parseDouble(p_jpyrub[4]), Double.parseDouble(p_jpyrub[7]));
-                usdrub[i-1] = new CurrencyData(sdf.parse(p_usdrub[2]), Double.parseDouble(p_usdrub[4]), Double.parseDouble(p_usdrub[7]));
-                uzsrub[i-1] = new CurrencyData(sdf.parse(p_uzsrub[2]), Double.parseDouble(p_uzsrub[4]), Double.parseDouble(p_uzsrub[7]));
+                cadrub[i - 1] = new CurrencyData(sdf.parse(p_cadrub[2]), Double.parseDouble(p_cadrub[4]), Double.parseDouble(p_cadrub[7]));
+                jpyrub[i - 1] = new CurrencyData(sdf.parse(p_jpyrub[2]), Double.parseDouble(p_jpyrub[4]), Double.parseDouble(p_jpyrub[7]));
+                usdrub[i - 1] = new CurrencyData(sdf.parse(p_usdrub[2]), Double.parseDouble(p_usdrub[4]), Double.parseDouble(p_usdrub[7]));
+                uzsrub[i - 1] = new CurrencyData(sdf.parse(p_uzsrub[2]), Double.parseDouble(p_uzsrub[4]), Double.parseDouble(p_uzsrub[7]));
             }
         } catch (IOException e) {
             e.printStackTrace();
